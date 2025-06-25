@@ -17,5 +17,21 @@ class BookingRepo{
             StatusCodes.INTERNAL_SERVER_ERROR)
     }
    }
+   async update(id,data){
+    try {
+        const booking = await Booking.update(data, {
+            where: {
+                id: id
+            }
+        });
+        const updatedBooking = await Booking.findByPk(id);
+        return updatedBooking;
+    } catch (error) {
+        throw new AppError('Repository Error',
+            'Cannot update booking',
+            'There was some issue while updating the booking',
+            StatusCodes.INTERNAL_SERVER_ERROR)
+    }
+   }
 }
 module.exports = BookingRepo;
