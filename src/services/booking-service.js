@@ -32,6 +32,37 @@ class BookingService {
         throw new ServiceError()
      }
    } 
+   async deleteBooking(id) {
+    try {
+        const booking = await this.bookingRepo.get(id);
+
+        if (booking.status === 'CANCELLED') {
+            throw new ServiceError('Booking already cancelled', 'Cannot cancel booking');
+        }
+
+        const flightId = booking.flightId;
+        const getFlightUrlResponse = `${FLIGHT_SERVICE_PATH}/api/v1/flights/${flightId}`;
+        const response = await axios.get(getFlightUrlResponse);
+        const flightData = response.data.data;
+
+        await axios.patch(`${FLIGHT_SERVICE_PATH}/api/v1/flights/${flightId}`, {
+            totalSeats: flightData.totalSeats + booking.noOfSeats
+        });
+
+        const updatedBooking = await this.bookingRepo.update(id, {
+            status: 'CANCELLED'
+        });
+
+        return updatedBooking;
+
+    } catch (error) {
+        console.error("Error in deleteBooking:", error);
+        if (error.name === 'Repository Error' || error.name === 'ValidationError') {
+            throw error;
+        }
+        throw new ServiceError('Something went wrong while cancelling the booking');
+    }
+}
 }
 
 module.exports = BookingService;

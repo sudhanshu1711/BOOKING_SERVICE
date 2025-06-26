@@ -33,5 +33,22 @@ class BookingRepo{
             StatusCodes.INTERNAL_SERVER_ERROR)
     }
    }
+   async get(id){
+    try {
+        const booking = await Booking.findByPk(id);
+        if(!booking){
+            throw new AppError('Repository Error',
+                'Booking not found',
+                'There was no booking with the given id',
+                StatusCodes.NOT_FOUND)
+        }
+        return booking;
+    } catch (error) {
+        throw new AppError('Repository Error',
+            'Cannot get booking',
+            'There was some issue while fetching the booking',
+            StatusCodes.INTERNAL_SERVER_ERROR)
+    }
+   }
 }
 module.exports = BookingRepo;
