@@ -1,9 +1,22 @@
 const {BookingService} = require('../services/index.js');
 const {StatusCodes} = require('http-status-codes')
+const {createChannel,publishMessage} = require('../utils/messageQueue.js');
+const {REMINDER_BINDING_KEY} = require('../config/serverConfig.js')
 
 const bookingService = new BookingService();
 
-const create = async (req,res)=>{
+class BookingController{
+   constructor(){
+   }
+   async sendMessageToQueue(req, res) {
+    const channel = await createChannel();
+    const data = { message: "success" };
+    publishMessage(channel, REMINDER_BINDING_KEY, JSON.stringify(data));
+    return res.status(200).json({
+        success: true
+    });
+}
+     async create (req,res){
    try {
       const response = await bookingService.createBooking(req.body);
       return  res.status(StatusCodes.CREATED).json({
@@ -21,7 +34,7 @@ const create = async (req,res)=>{
       })
    }
 }
-const destroy = async(req,res)=>{
+   async destroy(req,res){
    try {
       const response = await bookingService.deleteBooking(req.params.id);
       return res.status(StatusCodes.OK).json({
@@ -39,7 +52,5 @@ const destroy = async(req,res)=>{
       })
    }
    }
-
-module.exports = {
-    create,destroy
 }
+   module.exports = BookingController
