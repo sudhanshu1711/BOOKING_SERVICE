@@ -1,7 +1,6 @@
 const express = require('express');
 
 const  {BookingController} = require('../../controllers/index.js');
-const {createChannel} = require('../../utils/messageQueue.js')
 
 //const channel = await createChannel();
 const bookingController = new BookingController()
